@@ -162,30 +162,39 @@ HardFaultIrqHandler
       
       // Save LR to stack since we will be calling a function below
       // <your code here>
-      PUSH {LR}
+      PUSH R14
       // Copy the PC and LR values from the stack to R0 and R1 respectively.
       
       // Copy SP to R0
       // <your code here>
-      MOV R0, SP
+      LDR R0, R15
+      LDR R1, R14
+      MOV R0, R13
+      
       // Add offset to R0 so it points to location where PC was pushed on stack
       // <your code here>
-      ADD R0, R0, #28
+      
+      ADD R0, R0, #32
+      
       // Save R0 to stack since we will want to reference it later
       // <your code here>
+      
       PUSH {R0}
+      
       // Copy RO to R1
       // <your code here>
       MOV R1, R0
+      
       // Subtract 4 from R1 so it points to the stacked LR value
       // <your code here>
       SUB R1, R1, #4
+      
       // Load the data pointed to by R0 into R0
       // <your code here>
-      LDR R0,[R0]
+      LDR R0, R0
       // Load the data pointed to by R1 into R1
       // <your code here>
-      LDR R1, [R1]
+      LDR R1, R1
       // Call FaultPrint() to print out the PC and LR values.
       // The arguments are passed in R0 and R1.
       BL        FaultPrint
@@ -203,13 +212,13 @@ HardFaultIrqHandler
       
       // Restore R0 from stack. It points to PC in stack
       // <your code here>
-      POP {R0}
+      
       // Store R1 to address pointed to by R0
       // <your code here>
-      STR R1, [R0]
+      
       // Pop LR from stack
       // <your code here>
-       POP {LR}     
+            
       // Return from exception handler
       BX        LR
       
