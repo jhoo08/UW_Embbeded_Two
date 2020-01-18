@@ -41,16 +41,16 @@ TaskSwitch
     // value of currentSP. It takes its input argument sp from R0.
         BL scheduler
     // Load address of currentSP into R0
-        LDR R0, =SP
+        LDR R0, =currentSP
     // Load the value of currentSP into SP
-        LDR SP, [SP]
+        LDR SP, [R0]
     // Load registers R4-R11 using SP
-        PUSH {R4-R11}
+        POP {R4-R11}
     // Ensure that we return from exception Handler Mode to Thread Mode by 
     // loading the value EXC_RETURN_THREAD_MODE into LR
-        LDR LR =EXC_RETURN_THREAD_MODE
+        LDR LR, =EXC_RETURN_THREAD_MODE
     // Enable interrupts
-        CPSID I
+        CPSIE I
     // Branch using LR to return from exception while atomically restoring 
     // registers R0-R3, R12, LR, PC and xPSR
     BX LR
