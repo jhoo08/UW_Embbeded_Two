@@ -29,7 +29,7 @@ Module Description:
 static OS_STK   Task1Stk[APP_CFG_TASK_START_STK_SIZE];
 static OS_STK   Task2Stk[APP_CFG_TASK_START_STK_SIZE];
 static OS_STK   Task3Stk[APP_CFG_TASK_START_STK_SIZE];
-////
+
 
 // Task prototypes
 void TaskOne(void* pdata);
@@ -111,7 +111,7 @@ void TaskTwo(void* pdata)
 
    TaskThree - Counts up
 
-///************************************************************************************/
+************************************************************************************/
 void TaskThree(void* pdata)
 {
 	char buf[BUFSIZE];
@@ -129,7 +129,7 @@ void TaskThree(void* pdata)
 /************************************************************************************
 
    Print a formated string with the given buffer.
-  Each task should use its own buffer to prevent data corruption.
+   Each task should use its own buffer to prevent data corruption.
 
 ************************************************************************************/
 void PrintWithBuf(char *buf, int size, char *format, ...)
