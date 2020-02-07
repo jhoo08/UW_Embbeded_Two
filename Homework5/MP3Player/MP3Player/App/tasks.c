@@ -173,6 +173,7 @@ void LcdTouchDemoTask(void* pdata)
         
         // TODO: Poll for a touch on the touch panel
         // <Your code here>
+	    touched = touchCtrl.touched();
         // <hint: Call a function provided by touchCtrl
         
         if (! touched) {
@@ -184,6 +185,7 @@ void LcdTouchDemoTask(void* pdata)
        
         // TODO: Retrieve a point  
         // <Your code here>
+	    rawPoint.getPoint();
 
         if (rawPoint.x == 0 && rawPoint.y == 0)
         {
