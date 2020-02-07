@@ -3,7 +3,7 @@
 
     Board support for controlling I2C interfaces on NUCLEO-F401RE MCU
 
-    Source: https://github.com/g4lvanix/STM32F4-workarea/tree/master/Project/I2C-master-example
+    Source: https://github.com/g4lvanix/STM32F4-workarea/tree/master/Project/I2C-master-example, http://www.electroons.com/blog/hello-world/
 
     Adapted for University of Washington embedded systems programming certificate
     
@@ -25,10 +25,10 @@ void I2C1_init(void){
     
 	// enable APB1 peripheral clock for I2C1
 	// <your code here>
-    
+    	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
 	// enable clock for SCL and SDA pins
 	// <your code here>
-	
+	RCC_AHB1PeriphCLockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 	/* setup SCL and SDA pins
 	 * You can connect the I2C1 functions to two different
 	 * pins:
@@ -47,11 +47,17 @@ void I2C1_init(void){
     // Call GPIO_Init() to initialize GPIOB with GPIO_InitStruct
     
     // <your code here for the above>
-    
+    	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStruct.GPIO_OType = GPIO_OType_OD;
+	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_Init(GPIOB, &amp; GPIO_InitStruct);
 	// Connect I2C1 pins to AF:
     // Call GPIO_PinAFConfig once to set up pin 8 (SCL), once to set up pin 9 (SDA)
     // <your code here
-    
+    	GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
+	GPIO_PinAFConfig(PGIOB, GPIO_PinSource9, GPIO_AF_I2C1);
 	// configure I2C1
     // Initialze I2C_InitStruct (declared above) as follows:
     // set clock speed to 100000 (100 kHz)
@@ -63,10 +69,21 @@ void I2C1_init(void){
     // Then call I2C_Init() to initialize I2C1 with I2C_InitStruct
     
     // <Your code here for the above>
+	I2C_DeInit(I2C1);
+	I2C_InitStruct.I2C_Mode = I2C_Mode_I2C;
+	I2C_InitStruct.I2C_ClockSpeed = 100000;
+	I2C_InitStruct.I2C_Mode = I2C_Mode_I2C;
+	I2C_InitStruct.I2C_DutyCycle = I2C_DutyCycle_2;
+	I2C_InitStruct.I2C_OwnAddress1 = 0x00;
+	I2C_InitStruct.I2C_Ack = I2C_Ack_Disable;
+	I2C_InitStruct.I2C_AcknowledgedAddress = I2C-AcknowledgeAddress_7bit;
+	I2C_Init(I2C1, &amp; I2C_InitStruct);
 	
 	// enable I2C1
     // Call I2C_Cmd() to enable I2C1
 	// <your code here>
+	I2C_DeInit(I2C1);
+	I2C_Cmd(I2C1, Enable);
 }
 
 /* This function issues a start condition and 
