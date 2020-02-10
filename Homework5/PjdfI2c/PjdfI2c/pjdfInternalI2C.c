@@ -6,6 +6,9 @@
     Developed for University of Washington embedded systems programming certificate
     
     2018/12 Nick Strathy wrote/arranged it after a framework by Paul Lever
+    
+    https://stackoverflow.com/questions/52975817/setup-i2c-reading-and-writing-in-c-language (clue)
+    https://github.com/bentiss/i2c-read-register/blob/master/i2c-read-register.c (clue)
 */
 
 #include "bsp.h"
@@ -50,6 +53,9 @@ static PjdfErrCode CloseI2C(DriverInternal *pDriver)
 static PjdfErrCode ReadI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCount)
 {
 	<your code here>
+		
+		
+	return PJDF_ERR_NONE;
 }
 
 
@@ -65,6 +71,12 @@ static PjdfErrCode ReadI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCoun
 static PjdfErrCode WriteI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCount)
 {
 	<your code here>
+	pDriver DriverInternal = &pDriver;
+	pBuffer();
+	if(pCount(INT32U, pBuffer, &pBuffer) < 0) {
+		return 0;	
+	}
+	return PJDF_ERR_NONE;
 }
 
 // IoctlI2C
