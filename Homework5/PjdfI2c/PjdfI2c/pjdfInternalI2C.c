@@ -53,8 +53,9 @@ static PjdfErrCode CloseI2C(DriverInternal *pDriver)
 static PjdfErrCode ReadI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCount)
 {
 	<your code here>
-		
-		
+	PjdfContextI2C *pContext = (PjdfContextI2c*) pDriver->deviceContext;
+	if(pContext == NULL) while(1);
+	I2C_GetBuffer(pContext->i2cMemMap, (INT8U*) pBuffer, *pCount);
 	return PJDF_ERR_NONE;
 }
 
@@ -71,11 +72,15 @@ static PjdfErrCode ReadI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCoun
 static PjdfErrCode WriteI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCount)
 {
 	<your code here>
-	pDriver DriverInternal = &pDriver;
-	pBuffer();
-	if(pCount(INT32U, pBuffer, &pBuffer) < 0) {
-		return 0;	
-	}
+	PjdfContextI2c *pContext =(PjdfCOntextI2c*) pDriver->deviceContext;
+	if(pContext == NULL) while(1);
+	I2C_SendBuffer(pContext->i2cMemMap, (INT8U*)pBuffer, *pCount);
+	
+	//pDriver DriverInternal = &pDriver;
+	//pBuffer();
+	//if(pCount(INT32U, pBuffer, &pBuffer) < 0) {
+		//return 0;	
+	//}
 	return PJDF_ERR_NONE;
 }
 
