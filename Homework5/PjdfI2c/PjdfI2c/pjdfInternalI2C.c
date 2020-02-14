@@ -14,7 +14,7 @@
 #include "bsp.h"
 #include "pjdf.h"
 #include "pjdfInternal.h"
-
+//#include "bspI2c.h"
 // Control registers etc for I2C hardware
 typedef struct _PjdfContextI2C
 {
@@ -52,10 +52,10 @@ static PjdfErrCode CloseI2C(DriverInternal *pDriver)
 // Returns: PJDF_ERR_NONE if there was no error, otherwise an error code.
 static PjdfErrCode ReadI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCount)
 {
-	<your code here>
-	PjdfContextI2C *pContext = (PjdfContextI2c*) pDriver->deviceContext;
+	//<your code here>
+	PjdfContextI2c *pContext = (PjdfContextI2c*) pDriver->deviceContext;
 	if(pContext == NULL) while(1);
-	I2C_GetBuffer(pContext->i2cMemMap, (INT8U*) pBuffer, *pCount);
+	//I2C_GetBuffer(pContext->i2cMemMap, (INT8U*) pBuffer, *pCount);
 	return PJDF_ERR_NONE;
 }
 
@@ -71,10 +71,10 @@ static PjdfErrCode ReadI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCoun
 // Returns: PJDF_ERR_NONE if there was no error, otherwise an error code.
 static PjdfErrCode WriteI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCount)
 {
-	<your code here>
-	PjdfContextI2c *pContext =(PjdfCOntextI2c*) pDriver->deviceContext;
+//<your code here>
+	PjdfContextI2c *pContext =(PjdfContextI2c*) pDriver->deviceContext;
 	if(pContext == NULL) while(1);
-	I2C_SendBuffer(pContext->i2cMemMap, (INT8U*)pBuffer, *pCount);
+	//I2C_SendBuffer(pContext->i2cMemMap, (INT8U*)pBuffer, *pCount);
 	
 	//pDriver DriverInternal = &pDriver;
 	//pBuffer();
@@ -91,6 +91,7 @@ static PjdfErrCode IoctlI2C(DriverInternal *pDriver, INT8U request, void* pArgs,
     INT8U osErr;
     PjdfContextI2c *pContext = (PjdfContextI2c*) pDriver->deviceContext;
     if (pContext == NULL) while(1);
+    OSSemPend(pDriver->sem, 0, &osErr);
     switch (request)
     {
     case PJDF_CTRL_I2C_SET_DEVICE_ADDRESS: // Set the I2C device address for subsequent IO
@@ -100,6 +101,7 @@ static PjdfErrCode IoctlI2C(DriverInternal *pDriver, INT8U request, void* pArgs,
         while(1);
         break;
     }
+    OSSemPost(pDriver->sem);
     return PJDF_ERR_NONE;
 }
 

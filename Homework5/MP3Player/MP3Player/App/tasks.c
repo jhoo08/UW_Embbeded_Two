@@ -185,7 +185,7 @@ void LcdTouchDemoTask(void* pdata)
        
         // TODO: Retrieve a point  
         // <Your code here>
-	    rawPoint.getPoint();
+	    rawPoint = touchCtrl.getPoint();
 
         if (rawPoint.x == 0 && rawPoint.y == 0)
         {
