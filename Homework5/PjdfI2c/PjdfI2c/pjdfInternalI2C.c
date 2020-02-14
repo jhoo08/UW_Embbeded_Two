@@ -10,7 +10,8 @@
     https://stackoverflow.com/questions/52975817/setup-i2c-reading-and-writing-in-c-language (clue)
     https://github.com/bentiss/i2c-read-register/blob/master/i2c-read-register.c (clue)
 */
-
+#include <stm32f4xx.h>
+#include <stm32f4xx_i2c.h>
 #include "bsp.h"
 #include "pjdf.h"
 #include "pjdfInternal.h"
@@ -53,6 +54,7 @@ static PjdfErrCode CloseI2C(DriverInternal *pDriver)
 static PjdfErrCode ReadI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCount)
 {
 	//<your code here>
+        INT8U osErr;
 	PjdfContextI2c *pContext = (PjdfContextI2c*) pDriver->deviceContext;
 	if(pContext == NULL) while(1);
 	//I2C_GetBuffer(pContext->i2cMemMap, (INT8U*) pBuffer, *pCount);
@@ -72,15 +74,19 @@ static PjdfErrCode ReadI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCoun
 static PjdfErrCode WriteI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCount)
 {
 //<your code here>
-	PjdfContextI2c *pContext =(PjdfContextI2c*) pDriver->deviceContext;
-	if(pContext == NULL) while(1);
-	//I2C_SendBuffer(pContext->i2cMemMap, (INT8U*)pBuffer, *pCount);
-	
-	//pDriver DriverInternal = &pDriver;
-	//pBuffer();
-	//if(pCount(INT32U, pBuffer, &pBuffer) < 0) {
-		//return 0;	
-	//}
+         INT8U osERR;
+         INT32U i = 0;
+         INT8U direction = 0;
+         PjdfContextI2c *pContext = (PjdfContextI2c*) pDriver->deviceContext;
+         if (pContext == NULL) while(1);
+         OSSemPend(pDriver->sem, 0, &osERR);
+         I2C_start(pContext->i2cMemMap, (INT8U) pBuffer, direction);
+         while(i <= *pCount){
+           I2C_write(pContext->i2cMemMap, pBuffer[i+1]);
+           i++;
+         }
+         I2C_stop(pContext->i2cMemMap);
+         OSSemPost(pDriver->sem);
 	return PJDF_ERR_NONE;
 }
 
