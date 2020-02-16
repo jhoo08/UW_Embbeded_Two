@@ -24,6 +24,7 @@
 #define SD_ADAFRUIT_DC_HIGH()       GPIO_SetBits(SD_ADAFRUIT_DC_GPIO, SD_ADAFRUIT_DC_GPIO_Pin);
 
 #define SD_SPI_DEVICE_ID  PJDF_DEVICE_ID_SPI1
+#define SD_I2C_DEVICE_ID PJDF_DEVICE_ID_I2C
 
 #define SD_SPI_DATARATE  SPI_BaudRatePrescaler_2  // Tune to find optimal value SD controller will work with
 

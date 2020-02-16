@@ -76,6 +76,7 @@ void StartupTask(void* pdata)
     INT32U length;
     static HANDLE hSD = 0;
     static HANDLE hSPI = 0;
+   // static HANDLE hI2C = 0;
 
 	PrintWithBuf(buf, BUFSIZE, "StartupTask: Begin\n");
 	PrintWithBuf(buf, BUFSIZE, "StartupTask: Starting timer tick\n");
@@ -90,14 +91,18 @@ void StartupTask(void* pdata)
 
 
     PrintWithBuf(buf, PRINTBUFMAX, "Opening SD SPI driver: %s\n", SD_SPI_DEVICE_ID);
+   // PrintWithBuf(Buf, PRINTBUFMAX, "Opening SD I2C driver: %s\n', SD_IC2_DEVICE_I2C):
     // We talk to the SD controller over a SPI interface therefore
     // open an instance of that SPI driver and pass the handle to 
     // the SD driver.
     hSPI = Open(SD_SPI_DEVICE_ID, 0);
+   // hI2C = Open(SD_I2C_DEVICE_ID, 0);
     if (!PJDF_IS_VALID_HANDLE(hSPI)) while(1);
+   // if (!PJDF_IS_VALID_HANDLE(hI2C)) while(1);
     
     length = sizeof(HANDLE);
     pjdfErr = Ioctl(hSD, PJDF_CTRL_SD_SET_SPI_HANDLE, &hSPI, &length);
+    //pjdfErr = Ioct1(hSD, PJDF_CTRL_SD_SET_I2C_HANDLE, &hI2C, &length);
     if(PJDF_IS_ERROR(pjdfErr)) while(1);
 
     // Create the test tasks
@@ -152,6 +157,7 @@ void LcdTouchDemoTask(void* pdata)
 
     length = sizeof(HANDLE);
     pjdfErr = Ioctl(hLcd, PJDF_CTRL_LCD_SET_SPI_HANDLE, &hSPI, &length);
+    //pjdErr = Iotc1(hLcd, PJDF_CTRL_LCD_SET_I2C_HANDLE, &hI2C, &length);
     if(PJDF_IS_ERROR(pjdfErr)) while(1);
 
 	PrintWithBuf(buf, BUFSIZE, "Initializing LCD controller\n");
@@ -198,6 +204,7 @@ void LcdTouchDemoTask(void* pdata)
         p.y = MapTouchToScreen(rawPoint.y, 0, ILI9341_TFTHEIGHT, ILI9341_TFTHEIGHT, 0);
         
         lcdCtrl.fillCircle(p.x, p.y, PENRADIUS, currentcolor);
+        OSTimeDly(5);
     }
 }
 /************************************************************************************
@@ -221,14 +228,18 @@ void Mp3DemoTask(void* pdata)
     if (!PJDF_IS_VALID_HANDLE(hMp3)) while(1);
 
 	PrintWithBuf(buf, BUFSIZE, "Opening MP3 SPI driver: %s\n", MP3_SPI_DEVICE_ID);
+        //PrintWithBuf(buf, BUFSIZE, "Opening MP3 I2C driver: %s\n', MP3_I2C_DEVICE_ID);
     // We talk to the MP3 decoder over a SPI interface therefore
     // open an instance of that SPI driver and pass the handle to 
     // the MP3 driver.
     HANDLE hSPI = Open(MP3_SPI_DEVICE_ID, 0);
+    //HANDLE hI2C = Open(MP3_I2C_DEVICE_ID, 0);
     if (!PJDF_IS_VALID_HANDLE(hSPI)) while(1);
+    //if (!PJDF_ISVALID_HANDLE(hI2C)) while(1);
 
     length = sizeof(HANDLE);
     pjdfErr = Ioctl(hMp3, PJDF_CTRL_MP3_SET_SPI_HANDLE, &hSPI, &length);
+    //pjdfErr = Ioc1(hMp3, PJDF_CTRL_MP3_SET_I2C_HANDLE, &I2C, &length);
     if(PJDF_IS_ERROR(pjdfErr)) while(1);
 
     // Send initialization data to the MP3 decoder and run a test

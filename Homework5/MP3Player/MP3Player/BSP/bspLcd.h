@@ -27,6 +27,7 @@
 #define LCD_ILI9341_DC_HIGH()       GPIO_SetBits(LCD_ILI9341_DC_GPIO, LCD_ILI9341_DC_GPIO_Pin);
 
 #define LCD_SPI_DEVICE_ID  PJDF_DEVICE_ID_SPI1
+#define LCD_I2C_DEVICE_ID   PJDF_DEVICE_ID_I2C1
 
 #define LCD_SPI_DATARATE  SPI_BaudRatePrescaler_2  // Tune to find optimal value LCD controller will work with
 

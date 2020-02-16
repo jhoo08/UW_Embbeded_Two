@@ -55,9 +55,24 @@ static PjdfErrCode ReadI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCoun
 {
 	//<your code here>
         INT8U osErr;
-	PjdfContextI2c *pContext = (PjdfContextI2c*) pDriver->deviceContext;
-	if(pContext == NULL) while(1);
-	//I2C_GetBuffer(pContext->i2cMemMap, (INT8U*) pBuffer, *pCount);
+	INT32U i = 0;
+        INT8U direction = 1;
+        
+        uint8_t* buffer = (uint8_t*) pBuffer;
+        PjdfContextI2c* pContext = (PjdfContextI2c*) pDriver->deviceContext;
+        if (pContext == NULL) while(1);
+        OSSemPend(pDriver->sem, 0, &osErr);
+        I2C_start(pContext->i2cMemMap, buffer[i], direction);
+        while (i <= *pCount) {
+          if((*pCount) > 1) {
+            I2C_read_ack(pContext->i2cMemMap);
+          }else{
+            I2C_read_nack(pContext->i2cMemMap);
+          }
+          i++;
+        }
+        OSSemPost(pDriver->sem);
+        
 	return PJDF_ERR_NONE;
 }
 
@@ -77,12 +92,13 @@ static PjdfErrCode WriteI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCou
          INT8U osERR;
          INT32U i = 0;
          INT8U direction = 0;
+         uint8_t* buffer = (uint8_t*) pBuffer;
          PjdfContextI2c *pContext = (PjdfContextI2c*) pDriver->deviceContext;
          if (pContext == NULL) while(1);
          OSSemPend(pDriver->sem, 0, &osERR);
-         I2C_start(pContext->i2cMemMap, (INT8U) pBuffer, direction);
+         I2C_start(pContext->i2cMemMap, buffer[i], direction);
          while(i <= *pCount){
-           I2C_write(pContext->i2cMemMap, pBuffer[i+1]);
+           I2C_write(pContext->i2cMemMap, buffer[i+1]);
            i++;
          }
          I2C_stop(pContext->i2cMemMap);
