@@ -18,6 +18,7 @@
 #define ADAFRUIT_FT6206_LIBRARY
 
 #include <stdint.h>
+#include <pjdf.h>
 
 #ifndef boolean
     #define boolean bool
@@ -59,6 +60,7 @@ class Adafruit_FT6206 {
  public:
 
   Adafruit_FT6206(void);
+  void setPjdfHandle(HANDLE);
   boolean begin(uint8_t thresh = FT6206_DEFAULT_THRESSHOLD);  
 
   void writeRegister8(uint8_t reg, uint8_t val);
@@ -71,7 +73,7 @@ class Adafruit_FT6206 {
   TS_Point getPoint(void);
 
  private:
-   HANDLE hTouch;
+  HANDLE hTouch;
   uint8_t touches;
   uint16_t touchX[2], touchY[2], touchID[2];
 
