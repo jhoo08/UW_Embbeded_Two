@@ -76,7 +76,7 @@ void StartupTask(void* pdata)
     INT32U length;
     static HANDLE hSD = 0;
     static HANDLE hSPI = 0;
-   //static HANDLE hI2C = 0;
+    //static HANDLE hI2C = 0;
 
 	PrintWithBuf(buf, BUFSIZE, "StartupTask: Begin\n");
 	PrintWithBuf(buf, BUFSIZE, "StartupTask: Starting timer tick\n");
@@ -91,18 +91,14 @@ void StartupTask(void* pdata)
 
 
     PrintWithBuf(buf, PRINTBUFMAX, "Opening SD SPI driver: %s\n", SD_SPI_DEVICE_ID);
-    //PrintWithBuf(buf, PRINTBUFMAX, "Opening SD I2C driver: %s\n", SD_I2C_DEVICE_ID);
     // We talk to the SD controller over a SPI interface therefore
     // open an instance of that SPI driver and pass the handle to 
     // the SD driver.
     hSPI = Open(SD_SPI_DEVICE_ID, 0);
-    //hI2C = Open(SD_I2C_DEVICE_ID, 0);
     if (!PJDF_IS_VALID_HANDLE(hSPI)) while(1);
-   //if (!PJDF_IS_VALID_HANDLE(hI2C)) while(1);
     
     length = sizeof(HANDLE);
     pjdfErr = Ioctl(hSD, PJDF_CTRL_SD_SET_SPI_HANDLE, &hSPI, &length);
-   // pjdfErr = Ioctl(hSD, PJDF_CTRL_SD_SET_I2C_HANDLE, &hI2C, &length);
     if(PJDF_IS_ERROR(pjdfErr)) while(1);
 
     // Create the test tasks
@@ -111,6 +107,7 @@ void StartupTask(void* pdata)
     // The maximum number of tasks the application can have is defined by OS_MAX_TASKS in os_cfg.h
     OSTaskCreate(Mp3DemoTask, (void*)0, &Mp3DemoTaskStk[APP_CFG_TASK_START_STK_SIZE-1], APP_TASK_TEST1_PRIO);
     OSTaskCreate(LcdTouchDemoTask, (void*)0, &LcdTouchDemoTaskStk[APP_CFG_TASK_START_STK_SIZE-1], APP_TASK_TEST2_PRIO);
+    
 
     // Delete ourselves, letting the work be done in the new tasks.
     PrintWithBuf(buf, BUFSIZE, "StartupTask: deleting self\n");
@@ -124,7 +121,7 @@ static void DrawLcdContents()
     
     // Print a message on the LCD
     lcdCtrl.setCursor(40, 60);
-    lcdCtrl.setTextColor(ILI9341_WHITE);  
+    lcdCtrl.setTextColor(ILI9341_RED);  
     lcdCtrl.setTextSize(2);
     PrintToLcdWithBuf(buf, BUFSIZE, "Hello World!");
 
@@ -157,7 +154,6 @@ void LcdTouchDemoTask(void* pdata)
 
     length = sizeof(HANDLE);
     pjdfErr = Ioctl(hLcd, PJDF_CTRL_LCD_SET_SPI_HANDLE, &hSPI, &length);
-   // pjdfErr = Ioct1(hLcd, PJDF_CTRL_LCD_SET_I2C_HANDLE, &hI2C, &length);
     if(PJDF_IS_ERROR(pjdfErr)) while(1);
 
 	PrintWithBuf(buf, BUFSIZE, "Initializing LCD controller\n");
@@ -167,20 +163,30 @@ void LcdTouchDemoTask(void* pdata)
     DrawLcdContents();
     
     PrintWithBuf(buf, BUFSIZE, "Initializing FT6206 touchscreen controller\n");
-    if (! touchCtrl.begin(40)) {  // pass in 'sensitivity' coefficient
-        PrintWithBuf(buf, BUFSIZE, "Couldn't start FT6206 touchscreen controller\n");
-        while (1);
-    }
+//    if (! touchCtrl.begin(40)) {  // pass in 'sensitivity' coefficient
+//        PrintWithBuf(buf, BUFSIZE, "Couldn't start FT6206 touchscreen controller\n");
+//        while (1);
+//    }
     
     int currentcolor = ILI9341_RED;
-
+    
+    HANDLE hI2C = Open(PJDF_DEVICE_ID_I2C1, 0);
+    if (!PJDF_IS_VALID_HANDLE(hI2C)) while(1);
+    length = sizeof(HANDLE);
+    pjdfErr = Ioctl(hI2C, PJDF_CTRL_I2C_SET_DEVICE_ADDRESS, (void*) FT6206_ADDR, &length); //
+    if(PJDF_IS_ERROR(pjdfErr)) while(1);
+    
+    touchCtrl.setPjdfHandle(hI2C);
+    touchCtrl.begin(40);
+    
     while (1) { 
         boolean touched = false;
         
         // TODO: Poll for a touch on the touch panel
         // <Your code here>
-	    touched = touchCtrl.touched();
         // <hint: Call a function provided by touchCtrl
+        
+        touched = touchCtrl.touched();
         
         if (! touched) {
             OSTimeDly(5);
@@ -191,7 +197,7 @@ void LcdTouchDemoTask(void* pdata)
        
         // TODO: Retrieve a point  
         // <Your code here>
-	    rawPoint = touchCtrl.getPoint();
+        rawPoint = touchCtrl.getPoint();
 
         if (rawPoint.x == 0 && rawPoint.y == 0)
         {
@@ -204,7 +210,7 @@ void LcdTouchDemoTask(void* pdata)
         p.y = MapTouchToScreen(rawPoint.y, 0, ILI9341_TFTHEIGHT, ILI9341_TFTHEIGHT, 0);
         
         lcdCtrl.fillCircle(p.x, p.y, PENRADIUS, currentcolor);
-        OSTimeDly(5);
+		OSTimeDly(5);
     }
 }
 /************************************************************************************
@@ -228,18 +234,14 @@ void Mp3DemoTask(void* pdata)
     if (!PJDF_IS_VALID_HANDLE(hMp3)) while(1);
 
 	PrintWithBuf(buf, BUFSIZE, "Opening MP3 SPI driver: %s\n", MP3_SPI_DEVICE_ID);
-        //PrintWithBuf(buf, BUFSIZE, "Opening MP3 I2C driver: %s\n', MP3_I2C_DEVICE_ID);
     // We talk to the MP3 decoder over a SPI interface therefore
     // open an instance of that SPI driver and pass the handle to 
     // the MP3 driver.
     HANDLE hSPI = Open(MP3_SPI_DEVICE_ID, 0);
-   // HANDLE hI2C = Open(MP3_I2C_DEVICE_ID, 0);
     if (!PJDF_IS_VALID_HANDLE(hSPI)) while(1);
-    //if (!PJDF_ISVALID_HANDLE(hI2C)) while(1);
 
     length = sizeof(HANDLE);
     pjdfErr = Ioctl(hMp3, PJDF_CTRL_MP3_SET_SPI_HANDLE, &hSPI, &length);
-   // pjdfErr = Ioc1(hMp3, PJDF_CTRL_MP3_SET_I2C_HANDLE, &I2C, &length);
     if(PJDF_IS_ERROR(pjdfErr)) while(1);
 
     // Send initialization data to the MP3 decoder and run a test
@@ -276,7 +278,4 @@ void PrintToLcdWithBuf(char *buf, int size, char *format, ...)
     PrintToDeviceWithBuf(PrintCharToLcd, buf, size, format, args);
     va_end(args);
 }
-
-
-
 

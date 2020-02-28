@@ -2,7 +2,6 @@
     pjdf.h
     This is a generic device driver interface exposed to applications.
     This header is the main application interface of the PJ Driver Framework.
-
     Developed for University of Washington embedded systems programming certificate
     
     2016/2 Nick Strathy wrote/arranged it after a framework by Paul Lever
@@ -17,6 +16,7 @@
 #include "pjdfCtrlLcdILI9341.h"
 #include "pjdfCtrlMp3VS1053.h"
 #include "pjdfCtrlSDAdafruit.h"
+#include  "os_cpu.h"
 
 typedef INT8S HANDLE;
 #define PJDF_IS_VALID_HANDLE(x)  (x > 0) // A valid device driver handle is a positive number
@@ -41,10 +41,11 @@ typedef INT8S HANDLE;
      
 #define PJDF_DEVICE_IDS \
         PJDF_DEVICE_ID_SPI1, \
+        PJDF_DEVICE_ID_I2C1, \
         PJDF_DEVICE_ID_MP3_VS1053, \
         PJDF_DEVICE_ID_LCD_ILI9341, \
         PJDF_DEVICE_ID_SD_ADAFRUIT, \
-        PJDF_DEVICE_ID_I2C1, \
+        
 
 // Driver error codes
 // Definition: all driver error codes are negative numbers except PJDF_ERR_NONE.

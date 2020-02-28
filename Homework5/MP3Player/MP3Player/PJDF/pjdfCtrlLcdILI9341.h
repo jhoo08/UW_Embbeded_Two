@@ -18,5 +18,5 @@
 
 
 #define PJDF_CTRL_LCD_SET_SPI_HANDLE 0x3  // Passes the required SPI handle to the LCD driver to enable it to talk to the ILI9341
-
+#define PJDF_CTRL_LCD_SET_I2C_HANDLE 0x3  //2/19/20 Originally it was assigned to 0x3
 #endif

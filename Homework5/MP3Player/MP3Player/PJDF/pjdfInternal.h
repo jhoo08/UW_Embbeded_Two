@@ -29,6 +29,7 @@ struct _DriverInternal
     INT8U refCount; // current number of Open handles to the device
     INT8U maxRefCount; // Maximum Open handles allowed for the device
     void *deviceContext; // device dependent data
+    OS_FLAG_GRP *rxFlags; //EventFlags to enable and disable interrupts.
     
     // Device-specific methods for operating on the device
     PjdfErrCode (*Open)(DriverInternal *pDriver, INT8U flags);
@@ -41,6 +42,7 @@ struct _DriverInternal
 
 // PJDF DEVELOPER TODO: add the prototype of your driver's Init() implementation here:
 PjdfErrCode InitSPI(DriverInternal *pDriver, char *pName);
+PjdfErrCode InitI2C(DriverInternal *pDriver, char *pName);
 PjdfErrCode InitMp3VS1053(DriverInternal *pDriver, char *pName);
 PjdfErrCode InitLcdILI9341(DriverInternal *pDriver, char *pName);
 PjdfErrCode InitSDAdafruit(DriverInternal *pDriver, char *pName);

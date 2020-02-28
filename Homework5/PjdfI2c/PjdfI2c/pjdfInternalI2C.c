@@ -2,20 +2,16 @@
     pjdfInternalI2C.c
     The implementation of the internal PJDF interface pjdfInternal.h targetted for the
     Inter-Integrated Circuit (I2C)
-
     Developed for University of Washington embedded systems programming certificate
     
     2018/12 Nick Strathy wrote/arranged it after a framework by Paul Lever
-    
-    https://stackoverflow.com/questions/52975817/setup-i2c-reading-and-writing-in-c-language (clue)
-    https://github.com/bentiss/i2c-read-register/blob/master/i2c-read-register.c (clue)
 */
-#include <stm32f4xx.h>
-#include <stm32f4xx_i2c.h>
+
 #include "bsp.h"
 #include "pjdf.h"
 #include "pjdfInternal.h"
-//#include "bspI2c.h"
+#include  "os_cpu.h"
+
 // Control registers etc for I2C hardware
 typedef struct _PjdfContextI2C
 {
@@ -25,6 +21,7 @@ typedef struct _PjdfContextI2C
 
 static PjdfContextI2c i2c1Context = { PJDF_I2C1, 0 };
 
+OS_CPU_SR  cpu_sr = 0;
 
 
 // OpenI2C
@@ -54,26 +51,29 @@ static PjdfErrCode CloseI2C(DriverInternal *pDriver)
 static PjdfErrCode ReadI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCount)
 {
 	//<your code here>
-        INT8U osErr;
-	INT32U i = 0;
-        INT8U direction = 1;
-        
-        uint8_t* buffer = (uint8_t*) pBuffer;
-        PjdfContextI2c* pContext = (PjdfContextI2c*) pDriver->deviceContext;
-        if (pContext == NULL) while(1);
-        OSSemPend(pDriver->sem, 0, &osErr);
-        I2C_start(pContext->i2cMemMap, buffer[i], direction);
-        while (i <= *pCount) {
-          if((*pCount) > 1) {
-            I2C_read_ack(pContext->i2cMemMap);
-          }else{
-            I2C_read_nack(pContext->i2cMemMap);
-          }
-          i++;
+    INT8U osErr;
+    INT8U i = 0; 
+    INT8U direction = 1; //Variable i is to use to increment the buffer
+						 //Variable "direction" is used in I2C_start functions
+						 //direction 0 = write and direction 1 = read
+    //uint8_t* buffer = (uint8_t*) pBuffer;
+	
+    PjdfContextI2c *pContext = (PjdfContextI2c*) pDriver->deviceContext;
+    
+    OSSemPend(pDriver->sem, 0, &osErr);
+    
+    if (pContext == NULL) while(1);
+        OS_ENTER_CRITICAL(); 
+	I2C_start(pContext->i2cMemMap, ((uint8_t*)pBuffer)[0], I2C_Direction_RECEIVER ); //buffer[o] = slave address
+        for(i = 1; i < (((uint8_t)*pCount)-2); i++){
+          ((uint8_t*)pBuffer)[i] = I2C_read_ack(pContext->i2cMemMap);
         }
-        OSSemPost(pDriver->sem);
         
-	return PJDF_ERR_NONE;
+          ((uint8_t*)pBuffer)[i] = I2C_read_nack(pContext->i2cMemMap);
+        OS_EXIT_CRITICAL(); 
+    OSSemPost(pDriver->sem);
+	
+    return PJDF_ERR_NONE;
 }
 
 
@@ -88,22 +88,29 @@ static PjdfErrCode ReadI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCoun
 // Returns: PJDF_ERR_NONE if there was no error, otherwise an error code.
 static PjdfErrCode WriteI2C(DriverInternal *pDriver, void* pBuffer, INT32U* pCount)
 {
-//<your code here>
-         INT8U osERR;
-         INT32U i = 0;
-         INT8U direction = 0;
-         uint8_t* buffer = (uint8_t*) pBuffer;
-         PjdfContextI2c *pContext = (PjdfContextI2c*) pDriver->deviceContext;
-         if (pContext == NULL) while(1);
-         OSSemPend(pDriver->sem, 0, &osERR);
-         I2C_start(pContext->i2cMemMap, buffer[i], direction);
-         while(i <= *pCount){
-           I2C_write(pContext->i2cMemMap, buffer[i+1]);
-           i++;
-         }
-         I2C_stop(pContext->i2cMemMap);
-         OSSemPost(pDriver->sem);
-	return PJDF_ERR_NONE;
+	//<your code here>
+    INT8U osErr;
+    INT8U i = 0;
+    INT8U direction = 0;
+    uint8_t* buffer = (uint8_t*) pBuffer;
+	
+    PjdfContextI2c *pContext = (PjdfContextI2c*) pDriver->deviceContext;
+    
+    OSSemPend(pDriver->sem, 0, &osErr);
+    
+      if (pContext == NULL) while(1);
+        OS_ENTER_CRITICAL(); 
+	I2C_start(pContext->i2cMemMap, ((uint8_t*)pBuffer)[0], I2C_Direction_Tranmitter );
+        
+        for(i=1; i <= ((uint8_t)*pCount); i++){
+          I2C_write(pContext->i2cMemMap, ((uint8_t*)pBuffer)[i]);
+	}
+        
+	I2C_stop(pContext->i2cMemMap);
+        OS_EXIT_CRITICAL(); 
+    OSSemPost(pDriver->sem);
+        
+    return PJDF_ERR_NONE;
 }
 
 // IoctlI2C
@@ -112,8 +119,9 @@ static PjdfErrCode IoctlI2C(DriverInternal *pDriver, INT8U request, void* pArgs,
 {
     INT8U osErr;
     PjdfContextI2c *pContext = (PjdfContextI2c*) pDriver->deviceContext;
-    if (pContext == NULL) while(1);
     OSSemPend(pDriver->sem, 0, &osErr);
+    if (pContext == NULL) while(1);
+    OS_ENTER_CRITICAL(); 
     switch (request)
     {
     case PJDF_CTRL_I2C_SET_DEVICE_ADDRESS: // Set the I2C device address for subsequent IO
@@ -123,6 +131,7 @@ static PjdfErrCode IoctlI2C(DriverInternal *pDriver, INT8U request, void* pArgs,
         while(1);
         break;
     }
+    OS_EXIT_CRITICAL();
     OSSemPost(pDriver->sem);
     return PJDF_ERR_NONE;
 }
@@ -135,6 +144,8 @@ PjdfErrCode InitI2C(DriverInternal *pDriver, char *pName)
     
     // Initialize semaphore for serializing operations on the device 
     pDriver->sem = OSSemCreate(1); 
+    INT8U err;
+    pDriver->rxFlags = OSFlagCreate(0x0, &err);
     if (pDriver->sem == NULL) while (1);  // not enough semaphores available
     pDriver->refCount = 0; // initial number of Open handles to the device
     
@@ -158,4 +169,3 @@ PjdfErrCode InitI2C(DriverInternal *pDriver, char *pName)
     pDriver->initialized = OS_TRUE;
     return PJDF_ERR_NONE;
 }
-
