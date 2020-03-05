@@ -2493,6 +2493,9 @@
             <name>$PROJ_DIR$\MP3data\GenerateMp3Header.ps1</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\MP3data\myfile.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\MP3data\train_crossing.h</name>
         </file>
         <file>

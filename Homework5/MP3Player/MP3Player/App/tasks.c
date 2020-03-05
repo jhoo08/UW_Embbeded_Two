@@ -35,7 +35,8 @@ long MapTouchToScreen(long x, long in_min, long in_max, long out_min, long out_m
 }
 
 
-#include "train_crossing.h"
+//#include "train_crossing.h"
+#include "myfile.h"
 
 #define BUFSIZE 256
 
@@ -120,11 +121,22 @@ static void DrawLcdContents()
     lcdCtrl.fillScreen(ILI9341_BLACK);
     
     // Print a message on the LCD
-    lcdCtrl.setCursor(40, 60);
+    lcdCtrl.setCursor(50, 60);
     lcdCtrl.setTextColor(ILI9341_RED);  
     lcdCtrl.setTextSize(2);
     PrintToLcdWithBuf(buf, BUFSIZE, "Hello World!");
 
+    
+   lcdCtrl.drawRect(50, 90, 70, 70 , ILI9341_RED);
+   lcdCtrl.setTextColor(ILI9341_RED);
+   lcdCtrl.setTextSize(1);
+   PrintToLcdWithBuf(buf, BUFSIZE, "Start");
+   
+   lcdCtrl.drawRect(140, 90, 70, 70, ILI9341_RED);
+   lcdCtrl.setTextColor(ILI9341_RED);
+   lcdCtrl.setTextSize(2);
+   PrintToLcdWithBuf(buf, BUFSIZE, "Stop");
+   
 }
 
 /************************************************************************************
@@ -253,7 +265,8 @@ void Mp3DemoTask(void* pdata)
     {
         OSTimeDly(500);
         PrintWithBuf(buf, BUFSIZE, "Begin streaming sound file  count=%d\n", ++count);
-        Mp3Stream(hMp3, (INT8U*)Train_Crossing, sizeof(Train_Crossing)); 
+        //Mp3Stream(hMp3, (INT8U*)Train_Crossing, sizeof(Train_Crossing)); 
+      Mp3Stream(hMp3, (INT8U*)Wave, sizeof(Wave)); 
         PrintWithBuf(buf, BUFSIZE, "Done streaming sound file  count=%d\n", count);
     }
 }
